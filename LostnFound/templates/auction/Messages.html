@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Libertinus+Mono&family=Permanent+Marker&family=Rock+Salt&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Sunshiney&family=The+Girl+Next+Door&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
+        h1.display-4 {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: slideDownFade 0.8s ease forwards;
+        }
+
+        @keyframes slideDownFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 0.6s ease forwards;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .clickable-card {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .clickable-card:hover {
+            transform: scale(1.03) translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+
+
+    </style>
+    <script>
+        allItems = []
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch("/ViewMessages")
+                .then(response => response.json())
+                .then((data) => {
+                    allItems = data
+                    renderMessages(allItems)
+                })
+
+            document.getElementById("searchInput").addEventListener('input', (event) => {
+                const query = event.target.value.toLowerCase()
+                const filtered = allItems.filter(message => message.sender.toLowerCase().includes(query) || message.item.toLowerCase().includes(query))
+                renderMessages(filtered)
+            })
+
+
+        })
+
+        function renderMessages(data) {
+            console.log(data)
+            const container = document.getElementById("Message-container")
+            container.className = "container"
+            container.innerHTML = ""
+            data.forEach((item) => {
+                const messagecardHTML = `
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <div id = "${item.id}" class="card shadow rounded-4 mb-4 clickable-card">
+                                        <div class="card-body">
+                                            <p class="mb-2"><span class="fw-bold">From:</span> ${item.sender}</p>
+                                            <p class="mb-2"><span class="fw-bold">Info Regarding:</span> ${item.item}</p>
+                                            <p class="text-end text-muted small mb-0">Time: ${item.when}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                container.insertAdjacentHTML("beforeend", messagecardHTML)
+                const box = document.getElementById(item.id)
+                box.addEventListener('click', () => open(item.id))
+
+            })
+        }
+
+        function open(id) {
+            window.location.href = `/Extmessage/${id}`
+        }
+    </script>
+</head>
+
+<body>
+    <!-- NavBar -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow"
+        style="background: linear-gradient(90deg, #6C63FF, #B776CA);">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{% url 'index' %}">LostnFound</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'AddItem' %}">Add your item</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{%  url 'messages' %}">Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'sentmessages' %}">Sent</a>
+                    </li>
+                </ul>
+                <div class="mx-3" style="width: 300px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by item name">
+                </div>
+                <span class="navbar-text"><b>Signed in as: {{ user.username }}</b></span>
+                <form action=" {% url 'logout' %}" method="get">
+                    {% csrf_token %}
+                    <button class="btn btn-primary rounded-4 d-flex justify-content-center align-items-center"
+                        style=" margin-left: 80px;  width: 100px;" type="submit">Log Out</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Header -->
+    <div class="container my-4">
+        <h1 class="display-4">Messages</h1>
+        <hr>
+    </div>
+
+    <!-- Messages -->
+    <div id="Message-container"></div>
+</body>
+
+
+</html>
