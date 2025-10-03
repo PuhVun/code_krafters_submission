@@ -10,13 +10,13 @@ class Categories(models.Model):
     name = models.CharField(max_length=64)
 
     def __str__(self):
-        return self.name   # fixed typo (it was self.Category)
+        return self.name   
 
 class Listing(models.Model):
     Owner = models.ForeignKey(User, on_delete=models.CASCADE)
     Image = models.ImageField(upload_to="listing_images/", blank=True, null=True)  # ✅ real file upload
     Name = models.CharField(max_length=64)
-    Desc = models.TextField()  # changed to TextField (better for long descs)
+    Desc = models.TextField()  
     When = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -36,7 +36,7 @@ class Messages(models.Model):
     Sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     Receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     Message = models.CharField(max_length=64)
-    Attachment = models.FileField(upload_to="attachments/", blank=True, null=True)  # ✅ real uploads
+    Attachment = models.FileField(upload_to="attachments/", blank=True, null=True)  
     item = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
     When = models.DateTimeField(default=now)
 
